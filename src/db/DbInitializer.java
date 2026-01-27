@@ -19,12 +19,6 @@ public class DbInitializer {
                     "author VARCHAR(255) NOT NULL, " +
                     "available BOOLEAN NOT NULL DEFAULT TRUE" +
                     ")");
-            try {
-                stmt.executeUpdate("ALTER TABLE books DROP CONSTRAINT IF EXISTS books_isbn_key");
-                stmt.executeUpdate("ALTER TABLE books DROP COLUMN IF EXISTS isbn");
-            } catch (SQLException e) {
-                System.out.println("Warning: unable to drop isbn column. Please adjust schema manually.");
-            }
 
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS members (" +
                     "id SERIAL PRIMARY KEY, " +
