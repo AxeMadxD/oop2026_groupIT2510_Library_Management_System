@@ -23,11 +23,10 @@ public class JdbcMemberRepository implements MemberRepository {
 
     @Override
     public Member save(Member member) {
-        String sql = "INSERT INTO members (email, full_name) VALUES (?, ?)";
+        String sql = "INSERT INTO members (full_name) VALUES (?)";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, member.getEmail());
-            stmt.setString(2, member.getFullName());
+            stmt.setString(1, member.getFullName());
             stmt.executeUpdate();
             try (ResultSet keys = stmt.getGeneratedKeys()) {
                 if (keys.next()) {
@@ -40,9 +39,10 @@ public class JdbcMemberRepository implements MemberRepository {
         }
     }
 
+
     @Override
     public Optional<Member> findById(int id) {
-        String sql = "SELECT id, email, full_name FROM members WHERE id = ?";
+        String sql = "SELECT id, full_name FROM members WHERE id = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -59,7 +59,7 @@ public class JdbcMemberRepository implements MemberRepository {
 
     @Override
     public List<Member> findAll() {
-        String sql = "SELECT id, email, full_name FROM members ORDER BY id";
+        String sql = "SELECT id, full_name FROM members ORDER BY id";
         List<Member> members = new ArrayList<>();
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -76,7 +76,6 @@ public class JdbcMemberRepository implements MemberRepository {
     private Member mapRow(ResultSet rs) throws SQLException {
         return new Member(
                 rs.getInt("id"),
-                rs.getString("email"),
                 rs.getString("full_name")
         );
     }

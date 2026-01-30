@@ -23,13 +23,12 @@ public class JdbcBookRepository implements BookRepository {
 
     @Override
     public Book save(Book book) {
-        String sql = "INSERT INTO books (category_id, title, author, available) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO books (title, author, available) VALUES (?, ?, ?)";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setInt(1, book.getCategoryId());
-            stmt.setString(2, book.getTitle());
-            stmt.setString(3, book.getAuthor());
-            stmt.setBoolean(4, book.isAvailable());
+            stmt.setString(1, book.getTitle());
+            stmt.setString(2, book.getAuthor());
+            stmt.setBoolean(3, book.isAvailable());
             stmt.executeUpdate();
             try (ResultSet keys = stmt.getGeneratedKeys()) {
                 if (keys.next()) {
@@ -44,7 +43,7 @@ public class JdbcBookRepository implements BookRepository {
 
     @Override
     public Optional<Book> findById(int id) {
-        String sql = "SELECT id, category_id, title, author, available FROM books WHERE id = ?";
+        String sql = "SELECT id, title, author, available FROM books WHERE id = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -61,7 +60,7 @@ public class JdbcBookRepository implements BookRepository {
 
     @Override
     public List<Book> findAll() {
-        String sql = "SELECT id, category_id, title, author, available FROM books ORDER BY id";
+        String sql = "SELECT id, title, author, available FROM books ORDER BY id";
         List<Book> books = new ArrayList<>();
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -77,7 +76,7 @@ public class JdbcBookRepository implements BookRepository {
 
     @Override
     public List<Book> findAvailable() {
-        String sql = "SELECT id, category_id, title, author, available FROM books WHERE available = TRUE ORDER BY id";
+        String sql = "SELECT id, title, author, available FROM books WHERE available = TRUE ORDER BY id";
         List<Book> books = new ArrayList<>();
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -107,7 +106,6 @@ public class JdbcBookRepository implements BookRepository {
     private Book mapRow(ResultSet rs) throws SQLException {
         return new Book(
                 rs.getInt("id"),
-                rs.getInt("category_id"),
                 rs.getString("title"),
                 rs.getString("author"),
                 rs.getBoolean("available")

@@ -2,7 +2,6 @@ package domain;
 
 public class Book {
     private int id;
-    private int categoryId;
     private String title;
     private String author;
     private boolean available;
@@ -10,20 +9,14 @@ public class Book {
     public Book() {
     }
 
-    public Book(int id, int categoryId, String title, String author, boolean available) {
-        this.id = id;
-        this.categoryId = categoryId;
+    public Book(String title, String author, boolean available) {
         this.title = title;
         this.author = author;
         this.available = available;
     }
 
-    public Book(int categoryId, String title, String author) {
-        this(0, categoryId, title, author, true);
-    }
-
-    public Book(int categoryId, String title, String author, boolean available) {
-        this.categoryId = categoryId;
+    public Book(int id, String title, String author, boolean available) {
+        this.id = id;
         this.title = title;
         this.author = author;
         this.available = available;
@@ -35,14 +28,6 @@ public class Book {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
     }
 
     public String getTitle() {
@@ -71,7 +56,7 @@ public class Book {
 
     @Override
     public String toString() {
-        return "Book{id=" + id + ", categoryId=" + categoryId + ", title='" + title
+        return "Book{id=" + id +  ", title='" + title
                 + "', author='" + author + "', available=" + available + "}";
     }
 }

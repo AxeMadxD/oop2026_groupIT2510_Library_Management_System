@@ -2,7 +2,6 @@ package ui;
 
 import controllers.LibraryController;
 import domain.Book;
-import domain.Category;
 import domain.Loan;
 import domain.Member;
 import exceptions.ConflictException;
@@ -32,19 +31,16 @@ public class ConsoleApp {
             try {
                 int choice = readInt("Choose option: ");
                 switch (choice) {
-                    case 1 -> addCategory();
-                    case 2 -> listCategories();
-                    case 3 -> findCategoryById();
-                    case 4 -> addBook();
-                    case 5 -> listAvailableBooks();
-                    case 6 -> listAllBooks();
-                    case 7 -> findBookById();
-                    case 8 -> addMember();
-                    case 9 -> listMembers();
-                    case 10 -> findMemberById();
-                    case 11 -> borrowBook();
-                    case 12 -> returnBook();
-                    case 13 -> viewCurrentLoansPerMember();
+                    case 1 -> addBook();
+                    case 2 -> listAvailableBooks();
+                    case 3 -> listAllBooks();
+                    case 4 -> findBookById();
+                    case 5 -> addMember();
+                    case 6 -> listMembers();
+                    case 7 -> findMemberById();
+                    case 8 -> borrowBook();
+                    case 9 -> returnBook();
+                    case 10 -> viewCurrentLoansPerMember();
                     case 0 -> running = false;
                     default -> System.out.println("Invalid option.");
                 }
@@ -73,50 +69,23 @@ public class ConsoleApp {
 
     private void printMenu() {
         System.out.println();
-        System.out.println("1) Add category");
-        System.out.println("2) List categories");
-        System.out.println("3) Find category by id");
-        System.out.println("4) Add book");
-        System.out.println("5) List available books");
-        System.out.println("6) List all books");
-        System.out.println("7) Find book by id");
-        System.out.println("8) Add member");
-        System.out.println("9) List members");
-        System.out.println("10) Find member by id");
-        System.out.println("11) Borrow book");
-        System.out.println("12) Return book");
-        System.out.println("13) View current loans per member");
+        System.out.println("1) Add book");
+        System.out.println("2) List available books");
+        System.out.println("3) List all books");
+        System.out.println("4) Find book by id");
+        System.out.println("5) Add member");
+        System.out.println("6) List members");
+        System.out.println("7) Find member by id");
+        System.out.println("8) Borrow book");
+        System.out.println("9) Return book");
+        System.out.println("10) View current loans per member");
         System.out.println("0) Exit");
     }
 
-    private void addCategory() {
-        String name = readRequiredLine("Category name: ", "Category name");
-        Category category = controller.addCategory(name);
-        System.out.println("Created: " + category);
-    }
-
-    private void listCategories() {
-        List<Category> categories = controller.listCategories();
-        if (categories.isEmpty()) {
-            System.out.println("No categories found.");
-            return;
-        }
-        for (Category category : categories) {
-            System.out.println(category);
-        }
-    }
-
-    private void findCategoryById() {
-        int id = readPositiveId("Category id: ");
-        Category category = controller.findCategoryById(id);
-        System.out.println(category);
-    }
-
     private void addBook() {
-        int categoryId = readPositiveId("Category id: ");
         String title = readRequiredLine("Title: ", "Title");
         String author = readRequiredLine("Author: ", "Author");
-        Book book = controller.addBook(categoryId, title, author);
+        Book book = controller.addBook(title, author);
         System.out.println("Created: " + book);
     }
 
@@ -149,9 +118,8 @@ public class ConsoleApp {
     }
 
     private void addMember() {
-        String email = readRequiredLine("Email: ", "Email");
         String fullName = readRequiredLine("Full name: ", "Full name");
-        Member member = controller.addMember(email, fullName);
+        Member member = controller.addMember(fullName);
         System.out.println("Created: " + member);
     }
 

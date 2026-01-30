@@ -2,20 +2,17 @@ package domain;
 
 public class Member {
     private int id;
-    private String email;
     private String fullName;
 
     public Member() {
     }
 
-    public Member(int id, String email, String fullName) {
+    public Member(int id, String fullName) {
         this.id = id;
-        this.email = email;
         this.fullName = fullName;
     }
 
-    public Member(String email, String fullName) {
-        this.email = email;
+    public Member(String fullName) {
         this.fullName = fullName;
     }
 
@@ -25,14 +22,6 @@ public class Member {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getFullName() {
@@ -45,6 +34,6 @@ public class Member {
 
     @Override
     public String toString() {
-        return "Member{id=" + id + ", email='" + email + "', fullName='" + fullName + "'}";
+        return "Member{id=" + id + "', fullName='" + fullName + "'}";
     }
 }

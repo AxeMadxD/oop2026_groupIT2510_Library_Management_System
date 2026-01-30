@@ -3,11 +3,9 @@ import db.DbInitializer;
 import db.Database;
 import db.PostgresDatabase;
 import repositories.BookRepository;
-import repositories.CategoryRepository;
 import repositories.LoanRepository;
 import repositories.MemberRepository;
 import repositories.jdbc.JdbcBookRepository;
-import repositories.jdbc.JdbcCategoryRepository;
 import repositories.jdbc.JdbcLoanRepository;
 import repositories.jdbc.JdbcMemberRepository;
 import services.FineCalculator;
@@ -25,7 +23,6 @@ public class Main {
             return;
         }
 
-        CategoryRepository categoryRepository = new JdbcCategoryRepository(db);
         BookRepository bookRepository = new JdbcBookRepository(db);
         MemberRepository memberRepository = new JdbcMemberRepository(db);
         LoanRepository loanRepository = new JdbcLoanRepository(db);
@@ -34,7 +31,6 @@ public class Main {
         LoanService loanService = new LoanService(bookRepository, memberRepository, loanRepository, fineCalculator);
 
         LibraryController controller = new LibraryController(
-                categoryRepository,
                 bookRepository,
                 memberRepository,
                 loanRepository,

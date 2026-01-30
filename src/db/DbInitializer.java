@@ -7,22 +7,16 @@ import java.sql.Statement;
 public class DbInitializer {
     public static void init(Database db) {
         try (Connection conn = db.getConnection(); Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS categories (" +
-                    "id SERIAL PRIMARY KEY, " +
-                    "name VARCHAR(100) UNIQUE NOT NULL" +
-                    ")");
 
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS books (" +
                     "id SERIAL PRIMARY KEY, " +
-                    "category_id INT NOT NULL REFERENCES categories(id), " +
                     "title VARCHAR(255) NOT NULL, " +
                     "author VARCHAR(255) NOT NULL, " +
                     "available BOOLEAN NOT NULL DEFAULT TRUE" +
                     ")");
 
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS members (" +
-                    "id SERIAL PRIMARY KEY, " +
-                    "email VARCHAR(255) UNIQUE NOT NULL, " +
+                        "id SERIAL PRIMARY KEY, " +
                     "full_name VARCHAR(255) NOT NULL" +
                     ")");
 
