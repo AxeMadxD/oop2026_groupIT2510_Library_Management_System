@@ -9,6 +9,7 @@ import exceptions.DatabaseOperationException;
 import exceptions.LoanOverdueException;
 import exceptions.NotFoundException;
 import exceptions.ValidationException;
+import reports.LoanReport;
 
 import java.util.List;
 import java.util.Scanner;
@@ -41,6 +42,7 @@ public class ConsoleApp {
                     case 8 -> borrowBook();
                     case 9 -> returnBook();
                     case 10 -> viewCurrentLoansPerMember();
+                    case 11 -> viewOverdueLoans();
                     case 0 -> running = false;
                     default -> System.out.println("Invalid option.");
                 }
@@ -79,6 +81,7 @@ public class ConsoleApp {
         System.out.println("8) Borrow book");
         System.out.println("9) Return book");
         System.out.println("10) View current loans per member");
+        System.out.println("11) View overdue loans");
         System.out.println("0) Exit");
     }
 
@@ -218,4 +221,17 @@ public class ConsoleApp {
             System.out.println("Return canceled.");
         }
     }
+
+    private void viewOverdueLoans() {
+        List<LoanReport> reports = controller.viewOverdueLoans();
+        if (reports.isEmpty()) {
+            System.out.println("No overdue loans.");
+            return;
+        }
+        for (LoanReport report : reports) {
+            System.out.println(report.getMember().getFullName() + " - " +
+                    report.getBook().getTitle() + " - Fine: " + report.getFine());
+        }
+    }
+
 }

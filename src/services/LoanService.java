@@ -12,6 +12,7 @@ import exceptions.MemberNotFoundException;
 import repositories.BookRepository;
 import repositories.LoanRepository;
 import repositories.MemberRepository;
+import services.singleton.FinePolicy;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -82,26 +83,27 @@ public class LoanService {
         return loanRepository.findCurrentLoansByMemberId(memberId);
     }
 
-    public List<LoanReport> generateLoanReportsForMember(int memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberNotFoundException("Member not found: " + memberId));
+    public List<LoanReport> generateOverdueLoanReports() {
+        LocalDate today = LocalDate.now();
+        FinePolicy finePolicy = FinePolicy.getInstance();
 
-        List<Loan> loans = loanRepository.findCurrentLoansByMemberId(memberId);
+        return loanRepository.findAll().stream()
+                .filter(loan -> loan.getReturnDate() == null && loan.getDueDate().isBefore(today))
+                .sorted((l1, l2) -> l1.getDueDate().compareTo(l2.getDueDate()))
+                .map(loan -> {
+                    Member member = memberRepository.findById(loan.getMemberId()).orElse(null);
+                    Book book = bookRepository.findById(loan.getBookId()).orElse(null);
+                    int overdueDays = (int) java.time.temporal.ChronoUnit.DAYS.between(loan.getDueDate(), today);
+                    int fine = finePolicy.calculateFine(loan.getDueDate(), today);
 
-        return loans.stream().map(loan -> {
-            Book book = bookRepository.findById(loan.getBookId()).orElse(null);
-            Integer fine = (loan.getReturnDate() != null)
-                    ? fineCalculator.calculateFine(loan.getDueDate(), loan.getReturnDate())
-                    : 0;
-
-            return new LoanReport.Builder()
-                    .loan(loan)
-                    .member(member)
-                    .book(book)
-                    .returnDate(loan.getReturnDate())
-                    .fine(fine)
-                    .build();
-        }).collect(Collectors.toList());
+                    return new LoanReport.Builder()
+                            .loan(loan)
+                            .member(member)
+                            .book(book)
+                            .fine(fine)
+                               .returnDate(null)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
-
 }

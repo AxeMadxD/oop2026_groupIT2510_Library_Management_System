@@ -5,6 +5,7 @@ import domain.Loan;
 import domain.Member;
 import exceptions.BookNotFoundException;
 import exceptions.MemberNotFoundException;
+import reports.LoanReport;
 import repositories.BookRepository;
 import repositories.LoanRepository;
 import repositories.MemberRepository;
@@ -77,4 +78,10 @@ public class LibraryController {
     public List<Loan> viewCurrentLoansPerMember(int memberId) {
         return loanService.getCurrentLoansForMember(memberId);
     }
+
+    public List<LoanReport> viewOverdueLoans() {
+        return loanService.generateOverdueLoanReports();
+    }
+
+
 }
