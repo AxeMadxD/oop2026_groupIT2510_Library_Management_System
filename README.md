@@ -1,123 +1,100 @@
-# Library Management System (Milestone 1)
+Ardak, Akhmad 
+IT-2025
 
-## 1) Project Overview
-A Java 17 console Library Management System for managing books, members, categories, loans, and returns for a library/reading room. The project uses JDBC with PostgreSQL (Supabase supported) and follows SOLID layering.
 
-## 2) Features (Milestone 1)
-- Entities: Category, Book, Member, Loan
-- User stories:
-  - Borrow a book
-  - Return a book
-  - View current loans per member
-  - List available books
-  - Create/list/find by id for Category/Book/Member
+Library Management System
 
-## 3) Database Design
-Tables:
-- `categories`
-  - `id` SERIAL PRIMARY KEY
-  - `name` VARCHAR(100) UNIQUE NOT NULL
-- `books`
-  - `id` SERIAL PRIMARY KEY
-  - `category_id` INT NOT NULL REFERENCES `categories(id)`
-  - `title` VARCHAR(255) NOT NULL
-  - `author` VARCHAR(255) NOT NULL
-  - `available` BOOLEAN NOT NULL DEFAULT TRUE
-- `members`
-  - `id` SERIAL PRIMARY KEY
-  - `email` VARCHAR(255) UNIQUE NOT NULL
-  - `full_name` VARCHAR(255) NOT NULL
-- `loans`
-  - `id` SERIAL PRIMARY KEY
-  - `book_id` INT NOT NULL REFERENCES `books(id)`
-  - `member_id` INT NOT NULL REFERENCES `members(id)`
-  - `loan_date` DATE NOT NULL
-  - `due_date` DATE NOT NULL
-  - `return_date` DATE NULL
+A Java-based console application for managing a library, supporting books, members, loans, and fines. The project demonstrates OOP concepts, design patterns, and modern Java features such as generics, lambdas, and streams.
 
-Foreign keys:
-- `books.category_id` -> `categories.id`
-- `loans.book_id` -> `books.id`
-- `loans.member_id` -> `members.id`
+Features
 
-`return_date` is nullable and is used to detect active loans (current loans have `return_date IS NULL`).
+Book Management
 
-## 4) Architecture (SOLID)
-Layered design with clear responsibilities:
-- `domain/` = entity classes only
-- `repositories/` = repository interfaces
-- `repositories/jdbc/` = JDBC implementations with SQL
-- `services/` = business logic (`LoanService`, `FineCalculator`)
-- `controllers/` = application layer without SQL
-- `ui/` = `ConsoleApp` menu and input handling
-- `db/` = `Database` interface, `PostgresDatabase`, `DbInitializer`
-- `config/` = `DbConfig` (env variables or hardcoded switch)
+Add, list, and find books
 
-SOLID highlights:
-- SRP: each class has one responsibility (UI, service, repository, domain)
-- DIP: `Database` and repository interfaces decouple logic from JDBC
-- Controllers contain no SQL
-- `FineCalculator` separated from `LoanService` for flexibility
+Supports multiple book types via Factory Pattern (PrintedBook, Ebook, ReferenceBook)
 
-## 5) Exception Handling
-Custom exceptions and typical triggers:
-- `MemberNotFoundException` when member id does not exist
-- `BookNotFoundException` when book id does not exist
-- `CategoryNotFoundException` when category id does not exist
-- `LoanNotFoundException` when loan id does not exist
-- `BookAlreadyOnLoanException` when borrowing a non-available book
-- `LoanOverdueException` when returning a loan past the due date
+Track availability
 
-Overdue return flow:
-- The UI catches `LoanOverdueException`, prompts “Force return? (y/n)”, and if confirmed, performs a forced return and prints the fine.
+Member Management
 
-## 6) How to Run (IntelliJ + Maven)
-Requirements:
-- Java 17
-- Maven
-- Internet access if using Supabase
+Add, list, and find library members
 
-Steps:
-1. Open the project in IntelliJ.
-2. Run `src/Main.java`.
-3. `DbInitializer` creates tables automatically on startup.
+Loan Management
 
-## 7) Configure Database Connection
-Two modes are supported.
+Borrow and return books
 
-A) Environment Variables (recommended)
-- `DB_URL`, `DB_USER`, `DB_PASSWORD`
-- Example for Supabase session pooler:
+Track current and overdue loans
 
-```bash
-DB_URL=jdbc:postgresql://<POOLER_HOST>:5432/postgres?sslmode=require
-DB_USER=postgres.<project-ref>
-DB_PASSWORD=******
-```
+Calculate fines using Singleton Pattern (FinePolicy)
 
-B) Hardcoded mode (optional)
-- Switch one line in `src/config/DbConfig.java` between `EnvDbSettings` and `HardcodedDbSettings`.
-- Warning: do NOT commit real passwords into public git.
+Generate detailed loan reports with Builder Pattern (LoanReport)
 
-## 8) Console Menu
-Menu options:
-1) Add category
-2) List categories
-3) Find category by id
-4) Add book
-5) List available books
-6) List all books
-7) Find book by id
-8) Add member
-9) List members
-10) Find member by id
-11) Borrow book
-12) Return book
-13) View current loans per member
-0) Exit
+Generate overdue loan reports
 
-## 9) Notes for Defense
-- JDBC + repository pattern keeps SQL in one layer and supports testing/maintenance.
-- `due_date` and `return_date` drive loan status and fine logic.
-- Example FK: `books.category_id` references `categories.id`, and adding a book validates the category.
-- “Current loans” means `return_date IS NULL`.
+Functional Programming
+
+Filtering and sorting of loans and books using lambdas and streams
+
+Persistence
+
+JDBC-based repositories for Book, Member, and Loan
+
+PostgreSQL database with tables: books, members, loans
+
+Design Patterns Used
+
+Singleton: FinePolicy ensures only one fine policy exists.
+
+Builder: LoanReport.Builder for flexible construction of loan reports.
+
+Factory: BookFactory to create different book types dynamically.
+
+Functional Interfaces / Lambdas: Used for filtering and sorting collections.
+
+Project Structure
+src/
+ ├─ controllers/       # LibraryController
+ ├─ domain/            # Entities: Book, Loan, Member
+ ├─ repositories/      # Repository interfaces
+ ├─ repositories.jdbc/ # JDBC implementations
+ ├─ services/          # Business logic, LoanService, FineCalculator
+ ├─ services.singleton/# Singleton FinePolicy
+ ├─ reports/           # LoanReport with Builder
+ ├─ factories/         # BookFactory
+ ├─ db/                # Database setup
+ └─ ui/                # ConsoleApp (CLI)
+
+Database Setup
+
+The project uses a PostgreSQL database. Tables are created automatically via DbInitializer:
+
+books: id, title, author, available, type
+
+members: id, full_name
+
+loans: id, book_id, member_id, loan_date, due_date, return_date
+
+How to Run
+
+Configure database connection in Database.java.
+
+Run DbInitializer.init() to create tables.
+
+Start the console app:
+
+ConsoleApp app = new ConsoleApp(controller);
+app.run();
+
+
+Use the menu to add books, members, borrow/return books, and generate reports.
+
+Notes
+
+Overdue fines are calculated using the Singleton FinePolicy.
+
+Loan reports are built using Builder pattern.
+
+Book types are handled via Factory pattern.
+
+Streams and lambdas are used for filtering and sorting.
