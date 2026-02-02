@@ -8,12 +8,16 @@ public class DbInitializer {
     public static void init(Database db) {
         try (Connection conn = db.getConnection(); Statement stmt = conn.createStatement()) {
 
-            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS books (" +
-                    "id SERIAL PRIMARY KEY, " +
-                    "title VARCHAR(255) NOT NULL, " +
-                    "author VARCHAR(255) NOT NULL, " +
-                    "available BOOLEAN NOT NULL DEFAULT TRUE" +
-                    ")");
+            stmt.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS books (" +
+                            "id SERIAL PRIMARY KEY, " +
+                            "title VARCHAR(255) NOT NULL, " +
+                            "author VARCHAR(255) NOT NULL, " +
+                            "available BOOLEAN NOT NULL DEFAULT TRUE, " +
+                            "type VARCHAR(20) NOT NULL" +
+                            ")"
+            );
+
 
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS members (" +
                         "id SERIAL PRIMARY KEY, " +

@@ -83,11 +83,14 @@ public class ConsoleApp {
     }
 
     private void addBook() {
+        String type = readRequiredLine("Type (PRINTED / EBOOK / REFERENCE): ", "Type");
         String title = readRequiredLine("Title: ", "Title");
         String author = readRequiredLine("Author: ", "Author");
-        Book book = controller.addBook(title, author);
+
+        Book book = controller.addBook(type, title, author);
         System.out.println("Created: " + book);
     }
+
 
     private void listAvailableBooks() {
         List<Book> books = controller.listAvailableBooks();

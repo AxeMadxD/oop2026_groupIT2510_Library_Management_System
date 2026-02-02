@@ -9,6 +9,8 @@ import repositories.BookRepository;
 import repositories.LoanRepository;
 import repositories.MemberRepository;
 import services.LoanService;
+import factories.BookFactory;
+
 
 import java.util.List;
 
@@ -28,10 +30,11 @@ public class LibraryController {
         this.loanService = loanService;
     }
 
-    public Book addBook(String title, String author) {
-        Book book = new Book(title, author, true);
+    public Book addBook(String type, String title, String author) {
+        Book book = BookFactory.createBook(type, title, author);
         return bookRepository.save(book);
     }
+
 
     public List<Book> listAvailableBooks() {
         return bookRepository.findAvailable();
