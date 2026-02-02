@@ -2,6 +2,8 @@ package services;
 
 import domain.Book;
 import domain.Loan;
+import domain.Member;
+import reports.LoanReport;
 import exceptions.BookAlreadyOnLoanException;
 import exceptions.BookNotFoundException;
 import exceptions.LoanNotFoundException;
@@ -13,6 +15,7 @@ import repositories.MemberRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LoanService {
     private final BookRepository bookRepository;
@@ -44,14 +47,10 @@ public class LoanService {
         LocalDate today = LocalDate.now();
         LocalDate dueDate = today.plusDays(14);
         Loan loan = new Loan(book.getId(), memberId, today, dueDate, null);
-
-        // <-- Use save() instead of create()
         Loan created = loanRepository.save(loan);
-
         bookRepository.updateAvailability(book.getId(), false);
         return created;
     }
-
 
     public int returnBook(int loanId) {
         Loan loan = loanRepository.findActiveById(loanId)
@@ -82,4 +81,27 @@ public class LoanService {
                 .orElseThrow(() -> new MemberNotFoundException("Member not found: " + memberId));
         return loanRepository.findCurrentLoansByMemberId(memberId);
     }
+
+    public List<LoanReport> generateLoanReportsForMember(int memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException("Member not found: " + memberId));
+
+        List<Loan> loans = loanRepository.findCurrentLoansByMemberId(memberId);
+
+        return loans.stream().map(loan -> {
+            Book book = bookRepository.findById(loan.getBookId()).orElse(null);
+            Integer fine = (loan.getReturnDate() != null)
+                    ? fineCalculator.calculateFine(loan.getDueDate(), loan.getReturnDate())
+                    : 0;
+
+            return new LoanReport.Builder()
+                    .loan(loan)
+                    .member(member)
+                    .book(book)
+                    .returnDate(loan.getReturnDate())
+                    .fine(fine)
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
 }
