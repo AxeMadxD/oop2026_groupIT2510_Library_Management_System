@@ -23,26 +23,40 @@ public class JdbcBookRepository implements BookRepository {
 
     @Override
     public Book save(Book book) {
-        String sql = "INSERT INTO books (title, author, available) VALUES (?, ?, ?)";
-        try (Connection conn = db.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, book.getTitle());
-            stmt.setString(2, book.getAuthor());
-            stmt.setBoolean(3, book.isAvailable());
-            stmt.executeUpdate();
-            try (ResultSet keys = stmt.getGeneratedKeys()) {
-                if (keys.next()) {
-                    book.setId(keys.getInt(1));
+        if (book.getId() == 0) {
+            String sql = "INSERT INTO books (title, author, available) VALUES (?, ?, ?)";
+            try (Connection conn = db.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setString(1, book.getTitle());
+                stmt.setString(2, book.getAuthor());
+                stmt.setBoolean(3, book.isAvailable());
+                stmt.executeUpdate();
+                try (ResultSet keys = stmt.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        book.setId(keys.getInt(1));
+                    }
                 }
+            } catch (SQLException e) {
+                throw new DatabaseOperationException("Failed to save book", e);
             }
-            return book;
-        } catch (SQLException e) {
-            throw new DatabaseOperationException("Failed to save book", e);
+        } else {
+            String sql = "UPDATE books SET title = ?, author = ?, available = ? WHERE id = ?";
+            try (Connection conn = db.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, book.getTitle());
+                stmt.setString(2, book.getAuthor());
+                stmt.setBoolean(3, book.isAvailable());
+                stmt.setInt(4, book.getId());
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new DatabaseOperationException("Failed to update book", e);
+            }
         }
+        return book;
     }
 
     @Override
-    public Optional<Book> findById(int id) {
+    public Optional<Book> findById(Integer id) {
         String sql = "SELECT id, title, author, available FROM books WHERE id = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -58,6 +72,7 @@ public class JdbcBookRepository implements BookRepository {
         }
     }
 
+
     @Override
     public List<Book> findAll() {
         String sql = "SELECT id, title, author, available FROM books ORDER BY id";
@@ -71,6 +86,18 @@ public class JdbcBookRepository implements BookRepository {
             return books;
         } catch (SQLException e) {
             throw new DatabaseOperationException("Failed to list books", e);
+        }
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+        String sql = "DELETE FROM books WHERE id = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseOperationException("Failed to delete book", e);
         }
     }
 

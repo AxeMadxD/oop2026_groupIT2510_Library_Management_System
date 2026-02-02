@@ -44,10 +44,14 @@ public class LoanService {
         LocalDate today = LocalDate.now();
         LocalDate dueDate = today.plusDays(14);
         Loan loan = new Loan(book.getId(), memberId, today, dueDate, null);
-        Loan created = loanRepository.create(loan);
+
+        // <-- Use save() instead of create()
+        Loan created = loanRepository.save(loan);
+
         bookRepository.updateAvailability(book.getId(), false);
         return created;
     }
+
 
     public int returnBook(int loanId) {
         Loan loan = loanRepository.findActiveById(loanId)
