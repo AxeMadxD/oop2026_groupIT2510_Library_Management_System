@@ -1,5 +1,7 @@
 package domain.book;
 
+import exceptions.BookTypeNotSupportedException;
+
 public class BookFactory {
 
     public enum BookType {
@@ -8,13 +10,13 @@ public class BookFactory {
         REFERENCE;
 
         public static BookType fromString(String value) {
-            if (value == null) {
-                throw new IllegalArgumentException("Book type is required");
+            if (value == null || value.trim().isEmpty()) {
+                throw new BookTypeNotSupportedException("Book type is required");
             }
             try {
                 return BookType.valueOf(value.trim().toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Unknown book type: " + value);
+                throw new BookTypeNotSupportedException("Unknown book type: " + value);
             }
         }
     }
