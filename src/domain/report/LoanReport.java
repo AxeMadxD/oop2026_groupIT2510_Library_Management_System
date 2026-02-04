@@ -1,8 +1,8 @@
-package reports;
+package domain.report;
 
-import domain.Book;
-import domain.Loan;
-import domain.Member;
+import domain.book.Book;
+import domain.loan.Loan;
+import domain.member.Member;
 
 import java.time.LocalDate;
 

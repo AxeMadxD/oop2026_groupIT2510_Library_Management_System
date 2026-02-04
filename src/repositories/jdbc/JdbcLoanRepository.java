@@ -1,7 +1,7 @@
 package repositories.jdbc;
 
 import db.Database;
-import domain.Loan;
+import domain.loan.Loan;
 import exceptions.DatabaseOperationException;
 import repositories.LoanRepository;
 

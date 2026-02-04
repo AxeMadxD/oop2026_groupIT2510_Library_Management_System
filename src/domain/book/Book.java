@@ -1,4 +1,4 @@
-package domain;
+package domain.book;
 
 public class Book {
     private int id;

@@ -1,6 +1,6 @@
 package repositories;
 
-import domain.Book;
+import domain.book.Book;
 
 import java.util.List;
 
@@ -9,4 +9,3 @@ public interface BookRepository extends CrudRepository<Book, Integer> {
 
     void updateAvailability(int bookId, boolean available);
 }
-

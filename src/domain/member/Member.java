@@ -1,4 +1,4 @@
-package domain;
+package domain.member;
 
 public class Member {
     private int id;

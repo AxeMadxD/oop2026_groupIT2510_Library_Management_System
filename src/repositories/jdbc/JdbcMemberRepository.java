@@ -1,7 +1,7 @@
 package repositories.jdbc;
 
 import db.Database;
-import domain.Member;
+import domain.member.Member;
 import exceptions.DatabaseOperationException;
 import repositories.MemberRepository;
 import repositories.CrudRepository;

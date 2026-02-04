@@ -1,7 +1,7 @@
 package repositories.jdbc;
 
 import db.Database;
-import domain.Book;
+import domain.book.Book;
 import exceptions.DatabaseOperationException;
 import repositories.BookRepository;
 
@@ -47,8 +47,8 @@ public class JdbcBookRepository implements BookRepository {
                 stmt.setString(1, book.getTitle());
                 stmt.setString(2, book.getAuthor());
                 stmt.setBoolean(3, book.isAvailable());
-                stmt.setInt(4, book.getId());
-                stmt.setString(5, book.getType());
+                stmt.setString(4, book.getType());
+                stmt.setInt(5, book.getId());
                 stmt.executeUpdate();
             } catch (SQLException e) {
                 throw new DatabaseOperationException("Failed to update book", e);
@@ -59,7 +59,7 @@ public class JdbcBookRepository implements BookRepository {
 
     @Override
     public Optional<Book> findById(Integer id) {
-        String sql = "SELECT id, title, author, available, type FROM books";
+        String sql = "SELECT id, title, author, available, type FROM books WHERE id = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -77,7 +77,7 @@ public class JdbcBookRepository implements BookRepository {
 
     @Override
     public List<Book> findAll() {
-        String sql = "SELECT id, title, author, available FROM books ORDER BY id";
+        String sql = "SELECT id, title, author, available, type FROM books ORDER BY id";
         List<Book> books = new ArrayList<>();
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -105,7 +105,7 @@ public class JdbcBookRepository implements BookRepository {
 
     @Override
     public List<Book> findAvailable() {
-        String sql = "SELECT id, title, author, available FROM books WHERE available = TRUE ORDER BY id";
+        String sql = "SELECT id, title, author, available, type FROM books WHERE available = TRUE ORDER BY id";
         List<Book> books = new ArrayList<>();
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);

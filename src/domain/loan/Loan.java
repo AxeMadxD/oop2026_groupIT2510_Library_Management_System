@@ -1,4 +1,4 @@
-package domain;
+package domain.loan;
 
 import java.time.LocalDate;
 

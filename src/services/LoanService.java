@@ -1,9 +1,9 @@
 package services;
 
-import domain.Book;
-import domain.Loan;
-import domain.Member;
-import reports.LoanReport;
+import domain.book.Book;
+import domain.loan.Loan;
+import domain.member.Member;
+import domain.report.LoanReport;
 import exceptions.BookAlreadyOnLoanException;
 import exceptions.BookNotFoundException;
 import exceptions.LoanNotFoundException;

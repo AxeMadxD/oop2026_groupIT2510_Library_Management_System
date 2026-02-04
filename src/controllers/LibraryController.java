@@ -1,16 +1,16 @@
 package controllers;
 
-import domain.Book;
-import domain.Loan;
-import domain.Member;
+import domain.book.Book;
+import domain.loan.Loan;
+import domain.member.Member;
 import exceptions.BookNotFoundException;
 import exceptions.MemberNotFoundException;
-import reports.LoanReport;
+import domain.report.LoanReport;
 import repositories.BookRepository;
 import repositories.LoanRepository;
 import repositories.MemberRepository;
 import services.LoanService;
-import factories.BookFactory;
+import domain.book.BookFactory;
 
 
 import java.util.List;

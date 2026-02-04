@@ -1,15 +1,15 @@
 package ui;
 
 import controllers.LibraryController;
-import domain.Book;
-import domain.Loan;
-import domain.Member;
+import domain.book.Book;
+import domain.loan.Loan;
+import domain.member.Member;
 import exceptions.ConflictException;
 import exceptions.DatabaseOperationException;
 import exceptions.LoanOverdueException;
 import exceptions.NotFoundException;
 import exceptions.ValidationException;
-import reports.LoanReport;
+import domain.report.LoanReport;
 
 import java.util.List;
 import java.util.Scanner;

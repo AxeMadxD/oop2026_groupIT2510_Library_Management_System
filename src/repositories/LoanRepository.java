@@ -1,6 +1,6 @@
 package repositories;
 
-import domain.Loan;
+import domain.loan.Loan;
 
 import java.time.LocalDate;
 import java.util.List;
