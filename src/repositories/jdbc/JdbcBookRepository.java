@@ -133,12 +133,12 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     private Book mapRow(ResultSet rs) throws SQLException {
-        return new Book(
-                rs.getInt("id"),
-                rs.getString("title"),
-                rs.getString("author"),
-                rs.getBoolean("available"),
-                rs.getString("type")
-        );
+        return Book.builder()
+                .id(rs.getInt("id"))
+                .title(rs.getString("title"))
+                .author(rs.getString("author"))
+                .available(rs.getBoolean("available"))
+                .type(rs.getString("type"))
+                .build();
     }
 }

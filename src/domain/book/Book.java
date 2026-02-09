@@ -7,28 +7,23 @@ public class Book {
     private boolean available;
     private String type;
 
-
-    public Book(String title, String author, boolean available, String type) {
+    protected Book(String title, String author, boolean available, String type) {
         this.title = title;
         this.author = author;
         this.available = available;
         this.type = type;
     }
 
-    public Book(int id, String title, String author, boolean available, String type) {
-        this.id = id;
-        this.title = title;
-        this.author = author;
-        this.available = available;
-        this.type = type;
+    private Book(Builder builder) {
+        this.id = builder.id;
+        this.title = builder.title;
+        this.author = builder.author;
+        this.available = builder.available;
+        this.type = builder.type;
     }
 
-
-    public Book(int id, String title, String author, boolean available) {
-        this.id = id;
-        this.title = title;
-        this.author = author;
-        this.available = available;
+    public static Builder builder() {
+        return new Builder();
     }
 
     public int getId() {
@@ -69,6 +64,43 @@ public class Book {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public static class Builder {
+        private int id;
+        private String title;
+        private String author;
+        private boolean available = true;
+        private String type;
+
+        public Builder id(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder author(String author) {
+            this.author = author;
+            return this;
+        }
+
+        public Builder available(boolean available) {
+            this.available = available;
+            return this;
+        }
+
+        public Builder type(String type) {
+            this.type = type;
+            return this;
+        }
+
+        public Book build() {
+            return new Book(this);
+        }
     }
 
     @Override

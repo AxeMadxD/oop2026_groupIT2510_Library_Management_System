@@ -1,5 +1,9 @@
 package services;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import domain.book.Book;
 import domain.loan.Loan;
 import domain.member.Member;
@@ -13,10 +17,6 @@ import repositories.BookRepository;
 import repositories.LoanRepository;
 import repositories.MemberRepository;
 import services.singleton.FinePolicy;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class LoanService {
     private final BookRepository bookRepository;
@@ -93,7 +93,6 @@ public class LoanService {
                 .map(loan -> {
                     Member member = memberRepository.findById(loan.getMemberId()).orElse(null);
                     Book book = bookRepository.findById(loan.getBookId()).orElse(null);
-                    int overdueDays = (int) java.time.temporal.ChronoUnit.DAYS.between(loan.getDueDate(), today);
                     int fine = finePolicy.calculateFine(loan.getDueDate(), today);
 
                     return new LoanReport.Builder()

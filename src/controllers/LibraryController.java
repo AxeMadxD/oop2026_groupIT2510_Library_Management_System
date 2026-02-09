@@ -1,87 +1,74 @@
 package controllers;
 
+import components.catalog.CatalogComponent;
+import components.loan.LoanManagementComponent;
+import components.member.MemberManagementComponent;
+import components.reporting.ReportingComponent;
 import domain.book.Book;
 import domain.loan.Loan;
 import domain.member.Member;
-import exceptions.BookNotFoundException;
-import exceptions.MemberNotFoundException;
 import domain.report.LoanReport;
-import repositories.BookRepository;
-import repositories.LoanRepository;
-import repositories.MemberRepository;
-import services.LoanService;
-import domain.book.BookFactory;
-
 
 import java.util.List;
+import java.util.Optional;
 
 public class LibraryController {
-    private final BookRepository bookRepository;
-    private final MemberRepository memberRepository;
-    private final LoanRepository loanRepository;
-    private final LoanService loanService;
+    private final CatalogComponent catalogComponent;
+    private final MemberManagementComponent memberManagementComponent;
+    private final LoanManagementComponent loanManagementComponent;
+    private final ReportingComponent reportingComponent;
 
-    public LibraryController(BookRepository bookRepository,
-                             MemberRepository memberRepository,
-                             LoanRepository loanRepository,
-                             LoanService loanService) {
-        this.bookRepository = bookRepository;
-        this.memberRepository = memberRepository;
-        this.loanRepository = loanRepository;
-        this.loanService = loanService;
+    public LibraryController(CatalogComponent catalogComponent,
+                             MemberManagementComponent memberManagementComponent,
+                             LoanManagementComponent loanManagementComponent,
+                             ReportingComponent reportingComponent) {
+        this.catalogComponent = catalogComponent;
+        this.memberManagementComponent = memberManagementComponent;
+        this.loanManagementComponent = loanManagementComponent;
+        this.reportingComponent = reportingComponent;
     }
 
     public Book addBook(String type, String title, String author) {
-        Book book = BookFactory.createBook(type, title, author);
-        return bookRepository.save(book);
+        return catalogComponent.addBook(type, title, author);
     }
 
-
     public List<Book> listAvailableBooks() {
-        return bookRepository.findAvailable();
+        return catalogComponent.listAvailableBooks();
     }
 
     public List<Book> listAllBooks() {
-        return bookRepository.findAll();
+        return catalogComponent.listAllBooks();
     }
 
     public Book findBookById(int id) {
-        return bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException("Book not found: " + id));
+        return catalogComponent.findBookById((long) id).orElse(null);
     }
 
     public Member addMember(String fullName) {
-        return memberRepository.save(new Member(fullName));
+        return memberManagementComponent.addMember(fullName);
     }
 
     public List<Member> listMembers() {
-        return memberRepository.findAll();
+        return memberManagementComponent.listMembers();
     }
 
     public Member findMemberById(int id) {
-        return memberRepository.findById(id)
-                .orElseThrow(() -> new MemberNotFoundException("Member not found: " + id));
+        return memberManagementComponent.findMemberById((long) id).orElse(null);
     }
 
     public Loan borrowBook(int memberId, int bookId) {
-        return loanService.borrowBook(memberId, bookId);
+        return loanManagementComponent.borrowBook(memberId, bookId);
     }
 
-    public int returnBook(int loanId) {
-        return loanService.returnBook(loanId);
-    }
-
-    public int forceReturnOverdue(int loanId) {
-        return loanService.forceReturnOverdue(loanId);
+    public void returnBook(int loanId) {
+        loanManagementComponent.returnBook(loanId);
     }
 
     public List<Loan> viewCurrentLoansPerMember(int memberId) {
-        return loanService.getCurrentLoansForMember(memberId);
+        return loanManagementComponent.getLoansByMember(memberId);
     }
 
-    public List<LoanReport> viewOverdueLoans() {
-        return loanService.generateOverdueLoanReports();
+    public Optional<LoanReport> buildLoanReport(long memberId) {
+        return reportingComponent.buildLoanReport(memberId);
     }
-
-
 }

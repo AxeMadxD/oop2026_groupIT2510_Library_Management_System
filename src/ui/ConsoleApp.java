@@ -12,6 +12,7 @@ import exceptions.ValidationException;
 import domain.report.LoanReport;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class ConsoleApp {
@@ -42,7 +43,7 @@ public class ConsoleApp {
                     case 8 -> borrowBook();
                     case 9 -> returnBook();
                     case 10 -> viewCurrentLoansPerMember();
-                    case 11 -> viewOverdueLoans();
+                    case 11 -> viewLoanReport();
                     case 0 -> running = false;
                     default -> System.out.println("Invalid option.");
                 }
@@ -81,19 +82,18 @@ public class ConsoleApp {
         System.out.println("8) Borrow book");
         System.out.println("9) Return book");
         System.out.println("10) View current loans per member");
-        System.out.println("11) View overdue loans");
+        System.out.println("11) Build loan report by member");
         System.out.println("0) Exit");
     }
 
     private void addBook() {
-        String type = readRequiredLine("Type (PRINTED / EBOOK / REFERENCE): ", "Type");
+        String type = readBookType();
         String title = readRequiredLine("Title: ", "Title");
         String author = readRequiredLine("Author: ", "Author");
 
         Book book = controller.addBook(type, title, author);
         System.out.println("Created: " + book);
     }
-
 
     private void listAvailableBooks() {
         List<Book> books = controller.listAvailableBooks();
@@ -120,6 +120,10 @@ public class ConsoleApp {
     private void findBookById() {
         int id = readPositiveId("Book id: ");
         Book book = controller.findBookById(id);
+        if (book == null) {
+            System.out.println("Book not found: " + id);
+            return;
+        }
         System.out.println(book);
     }
 
@@ -143,12 +147,22 @@ public class ConsoleApp {
     private void findMemberById() {
         int id = readPositiveId("Member id: ");
         Member member = controller.findMemberById(id);
+        if (member == null) {
+            System.out.println("Member not found: " + id);
+            return;
+        }
         System.out.println(member);
     }
 
     private void borrowBook() {
-        int memberId = readPositiveId("Member id: ");
-        int bookId = readPositiveId("Book id: ");
+        int memberId = selectMemberIdByName();
+        if (memberId == -1) {
+            return;
+        }
+        int bookId = selectAvailableBookIdByTitle();
+        if (bookId == -1) {
+            return;
+        }
         Loan loan = controller.borrowBook(memberId, bookId);
         System.out.println("Loan created: " + loan);
     }
@@ -156,12 +170,15 @@ public class ConsoleApp {
     private void returnBook() {
         int loanId = readPositiveId("Loan id: ");
         lastLoanIdForReturn = loanId;
-        int fine = controller.returnBook(loanId);
-        System.out.println("Returned successfully. Fine: " + fine);
+        controller.returnBook(loanId);
+        System.out.println("Returned successfully.");
     }
 
     private void viewCurrentLoansPerMember() {
-        int memberId = readPositiveId("Member id: ");
+        int memberId = selectMemberIdByName();
+        if (memberId == -1) {
+            return;
+        }
         List<Loan> loans = controller.viewCurrentLoansPerMember(memberId);
         if (loans.isEmpty()) {
             System.out.println("No active loans for this member.");
@@ -169,6 +186,25 @@ public class ConsoleApp {
         }
         for (Loan loan : loans) {
             System.out.println(loan);
+        }
+    }
+
+    private void viewLoanReport() {
+        int memberId = selectMemberIdByName();
+        if (memberId == -1) {
+            return;
+        }
+        Optional<LoanReport> reportOpt = controller.buildLoanReport(memberId);
+        if (reportOpt.isEmpty()) {
+            System.out.println("No report found.");
+            return;
+        }
+        LoanReport report = reportOpt.get();
+        if (report.getMember() != null && report.getBook() != null) {
+            System.out.println(report.getMember().getFullName() + " - " +
+                    report.getBook().getTitle() + " - Fine: " + report.getFine());
+        } else {
+            System.out.println("Report generated.");
         }
     }
 
@@ -199,6 +235,70 @@ public class ConsoleApp {
         return value;
     }
 
+    private String readBookType() {
+        System.out.println("Book type:");
+        System.out.println("1) Printed");
+        System.out.println("2) Ebook");
+        System.out.println("3) Reference");
+        int choice = readInt("Choose type (1-3): ");
+        return switch (choice) {
+            case 1 -> "PRINTED";
+            case 2 -> "EBOOK";
+            case 3 -> "REFERENCE";
+            default -> throw new ValidationException("Type must be 1, 2, or 3");
+        };
+    }
+
+    private int selectMemberIdByName() {
+        String name = readRequiredLine("Member full name: ", "Member full name");
+        List<Member> members = controller.listMembers();
+        List<Member> matches = members.stream()
+                .filter(m -> m.getFullName().toLowerCase().contains(name.toLowerCase()))
+                .toList();
+        if (matches.isEmpty()) {
+            System.out.println("No members found matching: " + name);
+            return -1;
+        }
+        if (matches.size() == 1) {
+            return matches.get(0).getId();
+        }
+        System.out.println("Multiple members found:");
+        for (int i = 0; i < matches.size(); i++) {
+            Member m = matches.get(i);
+            System.out.println((i + 1) + ") " + m.getFullName() + " (id=" + m.getId() + ")");
+        }
+        int choice = readInt("Choose member (1-" + matches.size() + "): ");
+        if (choice < 1 || choice > matches.size()) {
+            throw new ValidationException("Member choice out of range");
+        }
+        return matches.get(choice - 1).getId();
+    }
+
+    private int selectAvailableBookIdByTitle() {
+        String title = readRequiredLine("Book title: ", "Book title");
+        List<Book> books = controller.listAvailableBooks();
+        List<Book> matches = books.stream()
+                .filter(b -> b.getTitle().toLowerCase().contains(title.toLowerCase()))
+                .toList();
+        if (matches.isEmpty()) {
+            System.out.println("No available books found matching: " + title);
+            return -1;
+        }
+        if (matches.size() == 1) {
+            return matches.get(0).getId();
+        }
+        System.out.println("Multiple books found:");
+        for (int i = 0; i < matches.size(); i++) {
+            Book b = matches.get(i);
+            System.out.println((i + 1) + ") " + b.getTitle() + " by " + b.getAuthor() + " (id=" + b.getId() + ")");
+        }
+        int choice = readInt("Choose book (1-" + matches.size() + "): ");
+        if (choice < 1 || choice > matches.size()) {
+            throw new ValidationException("Book choice out of range");
+        }
+        return matches.get(choice - 1).getId();
+    }
+
     private void handleOverdueReturn(String message) {
         if (lastLoanIdForReturn == null) {
             System.out.println(message);
@@ -208,8 +308,8 @@ public class ConsoleApp {
         String answer = readLine("Force return? (y/n): ");
         if (answer.equalsIgnoreCase("y")) {
             try {
-                int fine = controller.forceReturnOverdue(lastLoanIdForReturn);
-                System.out.println("Returned with fine: " + fine);
+                controller.returnBook(lastLoanIdForReturn);
+                System.out.println("Returned with fine.");
             } catch (NotFoundException e) {
                 System.out.println(e.getMessage());
             } catch (DatabaseOperationException e) {
@@ -221,17 +321,4 @@ public class ConsoleApp {
             System.out.println("Return canceled.");
         }
     }
-
-    private void viewOverdueLoans() {
-        List<LoanReport> reports = controller.viewOverdueLoans();
-        if (reports.isEmpty()) {
-            System.out.println("No overdue loans.");
-            return;
-        }
-        for (LoanReport report : reports) {
-            System.out.println(report.getMember().getFullName() + " - " +
-                    report.getBook().getTitle() + " - Fine: " + report.getFine());
-        }
-    }
-
 }

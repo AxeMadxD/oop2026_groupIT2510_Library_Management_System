@@ -1,3 +1,7 @@
+import components.catalog.CatalogComponent;
+import components.loan.LoanManagementComponent;
+import components.member.MemberManagementComponent;
+import components.reporting.ReportingComponent;
 import controllers.LibraryController;
 import db.DbInitializer;
 import db.Database;
@@ -30,11 +34,16 @@ public class Main {
         FineCalculator fineCalculator = new SimpleFineCalculator();
         LoanService loanService = new LoanService(bookRepository, memberRepository, loanRepository, fineCalculator);
 
+        CatalogComponent catalogComponent = new CatalogComponent(bookRepository);
+        MemberManagementComponent memberManagementComponent = new MemberManagementComponent(memberRepository);
+        LoanManagementComponent loanManagementComponent = new LoanManagementComponent(loanService, loanRepository);
+        ReportingComponent reportingComponent = new ReportingComponent(memberRepository, bookRepository, loanRepository);
+
         LibraryController controller = new LibraryController(
-                bookRepository,
-                memberRepository,
-                loanRepository,
-                loanService
+                catalogComponent,
+                memberManagementComponent,
+                loanManagementComponent,
+                reportingComponent
         );
 
         ConsoleApp app = new ConsoleApp(controller);
